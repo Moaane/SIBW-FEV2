@@ -38,7 +38,7 @@ export default function NavbarAdmin() {
     {
       name: "Area",
       href: "/dashboard/area",
-      current: location.pathname === "/dashboard/area",
+      current: location.pathname.startsWith("/dashboard/area"),
     },
   ];
 
