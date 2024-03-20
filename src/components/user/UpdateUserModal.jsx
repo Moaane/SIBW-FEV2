@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 import { FaAt } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-export default function UpdateModalUser({ user, onClose, onSubmit }) {
+export default function UpdateModalUser({ token, user, onClose, onSubmit }) {
   const [loading, setLoading] = useState(false);
   const [initialValues, setInitialValues] = useState({
     email: user.email,
@@ -24,7 +24,7 @@ export default function UpdateModalUser({ user, onClose, onSubmit }) {
       await validationSchema.validate(values);
       setSubmitting(true);
       setLoading(true);
-      await updateUserApi(user.id, values);
+      await updateUserApi(token, user.id, values);
       onSubmit();
     } catch (error) {
       toast.error(error.message);

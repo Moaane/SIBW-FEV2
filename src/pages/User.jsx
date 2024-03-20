@@ -1,14 +1,15 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import Loader from "../../common/Loader";
-import { deleteUserApi, findAllUserApi } from "../../api/UserApi";
-import UpdateModalUser from "./UpdateUserModal";
-import CreateUserModal from "./CreateUserModal";
-import Pagination from "../pagination/Pagination";
-import DeleteModal from "../modal/DeleteModal";
+import Loader from "../common/Loader";
+import { deleteUserApi, findAllUserApi } from "../api/UserApi";
+import UpdateModalUser from "../components/user/UpdateUserModal";
+import CreateUserModal from "../components/user/CreateUserModal";
+import Pagination from "../components/pagination/Pagination";
+import DeleteModal from "../components/modal/DeleteModal";
+import { useAuth } from "../auth/AuthProvider";
 
-export default function UserList() {
+export default function User() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
@@ -22,6 +23,8 @@ export default function UserList() {
     email: "",
     role: "",
   });
+  const auth = useAuth();
+  const token = auth.token;
 
   async function handlePageChange(newPage) {
     try {
@@ -35,7 +38,7 @@ export default function UserList() {
   async function handleDelete(id) {
     try {
       setLoading(true);
-      await deleteUserApi(id);
+      await deleteUserApi(token, id);
       await fetchUsers(page);
       setDeleteModalOpen(false);
     } catch (error) {
@@ -47,7 +50,7 @@ export default function UserList() {
 
   async function fetchUsers(page) {
     try {
-      const response = await findAllUserApi(page, perPage);
+      const response = await findAllUserApi(token, page);
       setUsers(response.result.data);
       setLastPage(response.result.meta.lastPage);
     } catch (error) {
@@ -59,7 +62,7 @@ export default function UserList() {
 
   useEffect(() => {
     fetchUsers(page);
-  }, [page]);
+  }, [token, page]);
 
   return loading ? (
     <Loader />
@@ -67,6 +70,7 @@ export default function UserList() {
     <>
       {updateModalOpen && (
         <UpdateModalUser
+          token={token}
           user={user}
           onClose={() => setUpdateModalOpen(false)}
           onSubmit={() => {
@@ -77,6 +81,7 @@ export default function UserList() {
 
       {createModalOpen && (
         <CreateUserModal
+          token={token}
           onClose={() => setCreateModalOpen(false)}
           onSubmit={() => {
             setCreateModalOpen(false), fetchUsers(page);

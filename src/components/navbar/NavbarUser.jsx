@@ -5,8 +5,6 @@ import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useAuth } from "../../auth/AuthProvider";
-import { useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png";
 
 const user = {
   name: "Tom Cook",
@@ -21,33 +19,21 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function NavbarAdmin() {
+export default function NavbarUser() {
+  const auth = useAuth();
+  async function handleLogout() {
+    await auth.logout();
+  }
+
   const location = useLocation();
   const [pageTitle, setPageTitle] = useState("");
   const navigation = [
     {
-      name: "User",
-      href: "/dashboard/user",
-      current: location.pathname === "/dashboard/user",
-    },
-    {
-      name: "Activity Template",
-      href: "/dashboard/activity-template",
-      current: location.pathname === "/dashboard/activity-template",
-    },
-    {
       name: "Area",
-      href: "/dashboard/area",
-      current: location.pathname === "/dashboard/area",
+      href: "/area",
+      current: location.pathname === "/area",
     },
   ];
-
-  const auth = useAuth();
-  const navigate = useNavigate();
-
-  async function handleLogout() {
-    await auth.logout();
-  }
 
   useEffect(() => {
     // Find the current route in the navigation array
@@ -71,7 +57,7 @@ export default function NavbarAdmin() {
         <Disclosure as="nav" className="bg-gray-800">
           {({ open }) => (
             <>
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                   <div className="flex items-center">
                     <div className="hidden md:block">
@@ -94,7 +80,7 @@ export default function NavbarAdmin() {
                       </div>
                     </div>
                   </div>
-                  <div className="hidden md:block">
+                  <div className="">
                     <div className="ml-4 flex items-center md:ml-6">
                       {/* Profile dropdown */}
                       <Menu as="div" className="relative ml-3">
@@ -140,28 +126,10 @@ export default function NavbarAdmin() {
                       </Menu>
                     </div>
                   </div>
-                  <div className="-mr-2 flex md:hidden">
-                    {/* Mobile menu button */}
-                    <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                      <span className="absolute -inset-0.5" />
-                      <span className="sr-only">Open main menu</span>
-                      {open ? (
-                        <XMarkIcon
-                          className="block h-6 w-6"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <Bars3Icon
-                          className="block h-6 w-6"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </Disclosure.Button>
-                  </div>
                 </div>
               </div>
 
-              <Disclosure.Panel className="md:hidden">
+              <Disclosure.Panel className="">
                 <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
                   {navigation.map((item) => (
                     <Disclosure.Button
