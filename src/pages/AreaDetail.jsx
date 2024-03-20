@@ -4,13 +4,14 @@ import { useState } from "react";
 import Loader from "../common/Loader";
 import Pagination from "../components/pagination/Pagination";
 import UserLayout from "../layout/UserLayout";
-import { findAllActivityApi } from "../api/ActivityApi";
+import { findAllActivityApi, nextActivityApi } from "../api/ActivityApi";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
 export default function AreaDetail() {
   const [loading, setLoading] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
+  const [completedRows, setCompletedRows] = useState([]);
   const [activities, setActivities] = useState([]);
   const [area, setArea] = useState({});
   const [page, setPage] = useState(1);
@@ -29,6 +30,26 @@ export default function AreaDetail() {
     }
   }
 
+  function handleRowClick(rowId) {
+    if (!completedRows.includes(rowId)) {
+      setCompletedRows([...completedRows, rowId]);
+    }
+  }
+
+  function handleCompleteActivity(index) {
+    // Update status aktivitas di state
+    const updatedActivities = [...activities];
+    updatedActivities[index].isCompleted = true;
+    setActivities(updatedActivities);
+  }
+
+  async function handleNextActivity() {
+    try {
+      await nextActivityApi(token, id);
+      await fetchActivities(page);
+    } catch (error) {}
+  }
+
   async function fetchActivities(page) {
     try {
       const response = await findAllActivityApi(token, id, page);
@@ -44,7 +65,13 @@ export default function AreaDetail() {
 
   useEffect(() => {
     fetchActivities(page);
-  }, [token, page, id]);
+  }, [token, page, id]); // Mengubah dependensi useEffect untuk memanggil fetchActivities saat token, page, atau id berubah
+
+  // useEffect baru untuk memperbarui isComplete setelah activities diperbarui
+  useEffect(() => {
+    const allCompleted = activities.every((activity) => activity.isCompleted);
+    setIsComplete(allCompleted);
+  }, [activities]);
 
   return loading ? (
     <Loader />
@@ -56,7 +83,8 @@ export default function AreaDetail() {
             Day {area.dayCompleted}
           </h1>
           <button
-            disabled={isComplete}
+            onClick={() => handleNextActivity(id)}
+            disabled={!isComplete}
             // onClick={() => setCreateModalOpen(true)}
             className={` text-white font-satoshi font-semibold text-sm px-5 py-2.5 me-2 mb-2 rounded-lg focus:outline-none ${
               isComplete
@@ -94,7 +122,18 @@ export default function AreaDetail() {
                 <td>{item.note}</td>
                 <td>{item.description}</td>
                 <td className="space-x-4">
-                  <button className="text-white font-satoshi font-semibold text-sm bg-indigo-500 px-5 py-2.5 me-2 rounded-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 ">
+                  <button
+                    disabled={completedRows.includes(item.id)}
+                    onClick={() => {
+                      handleRowClick(item.id);
+                      handleCompleteActivity(index);
+                    }}
+                    className={`text-white font-satoshi font-semibold text-sm px-5 py-2.5 me-2 rounded-lg focus:outline-none focus:ring-4  ${
+                      completedRows.includes(item.id)
+                        ? "bg-gray-500 text-gray-300 "
+                        : "bg-indigo-500 focus:ring-indigo-300"
+                    } `}
+                  >
                     Complete
                   </button>
                 </td>

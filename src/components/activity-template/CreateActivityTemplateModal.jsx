@@ -12,7 +12,11 @@ import {
 } from "react-icons/fa6";
 import { createActivityTemplateApi } from "../../api/AcitivityTemplateApi";
 
-export default function CreateActivityTemplateModal({ onClose, onSubmit }) {
+export default function CreateActivityTemplateModal({
+  token,
+  onClose,
+  onSubmit,
+}) {
   const [loading, setLoading] = useState(false);
   const initialValues = {
     name: "",
@@ -37,7 +41,7 @@ export default function CreateActivityTemplateModal({ onClose, onSubmit }) {
       await validationSchema.validate(values);
       setSubmitting(true);
       setLoading(true);
-      await createActivityTemplateApi(values);
+      await createActivityTemplateApi(token, values);
       onSubmit();
     } catch (error) {
       toast.error(error.message);

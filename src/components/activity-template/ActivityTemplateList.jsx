@@ -9,6 +9,7 @@ import Pagination from "../pagination/Pagination";
 import CreateActivityTemplateModal from "./CreateActivityTemplateModal";
 import UpdateActivityModal from "./UpdateActivityTemplateModal";
 import DeleteModal from "../modal/DeleteModal";
+import { useAuth } from "../../auth/AuthProvider";
 
 export default function ActivityTemplateList() {
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,8 @@ export default function ActivityTemplateList() {
     note: "",
     description: "",
   });
+  const user = useAuth();
+  const token = user.token;
 
   async function handlePageChange(newPage) {
     try {
@@ -41,7 +44,7 @@ export default function ActivityTemplateList() {
   async function handleDelete(id) {
     try {
       setLoading(true);
-      await deleteActivityTemplateApi(id);
+      await deleteActivityTemplateApi(token, id);
       await fetchAts(page);
       setDeleteModalOpen(false);
     } catch (error) {
@@ -53,7 +56,7 @@ export default function ActivityTemplateList() {
 
   async function fetchAts(page) {
     try {
-      const response = await findAllActivityTemplateApi(page, perPage);
+      const response = await findAllActivityTemplateApi(token, page);
       setActivities(response.result.data);
       setLastPage(response.result.meta.lastPage);
     } catch (error) {
@@ -65,12 +68,13 @@ export default function ActivityTemplateList() {
 
   useEffect(() => {
     fetchAts(page);
-  }, [page]);
+  }, [token, page]);
 
   return (
     <>
       {updateModalOpen && (
         <UpdateActivityModal
+          token={token}
           activity={activity}
           onClose={() => setUpdateModalOpen(false)}
           onSubmit={() => {
@@ -81,6 +85,7 @@ export default function ActivityTemplateList() {
 
       {createModalOpen && (
         <CreateActivityTemplateModal
+          token={token}
           onClose={() => setCreateModalOpen(false)}
           onSubmit={() => {
             setCreateModalOpen(false), fetchAts(page);

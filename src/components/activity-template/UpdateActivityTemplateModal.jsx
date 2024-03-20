@@ -14,7 +14,12 @@ import {
 } from "react-icons/fa6";
 import { updateActivityTemplateApi } from "../../api/AcitivityTemplateApi";
 
-export default function UpdateActivityModal({ activity, onClose, onSubmit }) {
+export default function UpdateActivityModal({
+  token,
+  activity,
+  onClose,
+  onSubmit,
+}) {
   const [loading, setLoading] = useState(false);
   const [initialValues, setInitialValues] = useState({
     name: activity.name,
@@ -39,7 +44,7 @@ export default function UpdateActivityModal({ activity, onClose, onSubmit }) {
       await validationSchema.validate(values);
       setSubmitting(true);
       setLoading(true);
-      await updateActivityTemplateApi(activity.id, values);
+      await updateActivityTemplateApi(token, activity.id, values);
       onSubmit();
     } catch (error) {
       toast.error(error.message);
